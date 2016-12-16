@@ -6,12 +6,10 @@
 http://qiita.com/kkoba84/items/b828229c374a249965a9 を参考に色々インストールしてください.
 
 #virtualenvの使い方
-source shi3/bin/activate で環境に入れます(mecab-python3,requestsが入っている).
+source shi3/bin/activate で環境に入れます(mecab-python3,requests,feedparserが入っている).
 deactivate で環境から出られます.
 
 #タスク(各自自由に追加してよい)  
 ##久保
 * 声質変換出来る人をスカウト.
-* 単純なしりとりを出来るようにする.
-* 認識した文字列の末尾の文字を取得→APIでとってきた文字列.rstripをMeCabにかける.
-
+* 一連の関数をまとめたUIを作る
