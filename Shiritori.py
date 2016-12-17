@@ -3,17 +3,55 @@ import MeCab
 import random
 import copy
 import sys
+import pyaudio
+import wave
+import requests
 
 accept = ['名詞-一般']
+
+#wave const
+CHUNK = 1024
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 16000
+RECORD_SECONDS = 3
+WAVE_OUTPUT_FILENAME = "output.wav"
+
+APIKEY = '626b7a4f416a48454771576241464467474330705a496e2f54646a6535514c69625164745a6338664a442f'
+path = '/home/yuinityk/OneDrive/workspace/ShiritoriAI/output.wav'
+url = "https://api.apigw.smt.docomo.ne.jp/amiVoice/v1/recognize?APIKEY={}".format(APIKEY)
+
 mecab = MeCab.Tagger('-Ochasen')
 mecab.parse('')
-'''
-node = mecab.parseToNode('強連結成分分解')
 
-while node:
-    print(node.surface, node.feature)
-    node = node.next
-'''
+def record():
+    p = pyaudio.PyAudio()
+    stream = p.open(format = FORMAT,
+            channels = CHANNELS,
+            rate = RATE,
+            input = True,
+            frames_per_buffer = CHUNK)
+    frames = []
+    print("* recording...")
+    for i in range(0,int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+    stream.stop_stream()
+    stream.close()
+    p.terminate
+    print("* done recording.")
+
+    wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+def word_recognize():
+    files = {"a": open(path, 'rb'), "v": "on"}
+    r = requests.post(url, files=files)
+    return r.json()['text']
 
 def load_dic():
     wdic = {}
@@ -63,10 +101,10 @@ def get_endletter(w):
         f.write('get_endletter error(parse): ' + endletter + '\n')
         f.close()
 
-def return_word(el,wdic): #el='チ'など
+def return_word(el,wdic):
     return random.choice(wdic[el])
 
-def learn_word(words,savedic): #wdicにない単語をsaveに入れる
+def learn_word(words,savedic): #wdicにない単語をsaveに入れて返す
     wdic = load_dic()
     save = copy.deepcopy(savedic)
     parsed = mecab.parse(words.rstrip('、。')).split('\t')
@@ -115,7 +153,28 @@ def play(mode='endless'):
                 if mode != 'endless':
                     wdic[el].remove(re)
 
+def play_record(mode='endless'):
+    wdic = load_dic()
+    while 1:
+        print('press any key to record')
+        _ = input()
+        record()
+        w = word_recognize()
+        el = get_endletter(w)
+        if len(wdic[el]) == 0:
+            print('I lose!')
+            savedic = learn_word(w,{})
+            save_dic(savedic)
+            exit()
+        else:
+            re = return_word(el,wdic)
+            print('me:'+re)
+            savedic = learn_word(w,{})
+            save_dic(savedic)
+            if mode != 'endless':
+                wdic[el].remove(re)
+
 if __name__ == '__main__':
     print('Which mode?(endless,vs)> ',end='')
     mode = input()
-    play(mode)
+    play_record(mode)
