@@ -13,7 +13,6 @@ while node:
     node = node.next
 '''
 
-
 def load_dic():
     wdic = {}
     f = open('dic.csv','r')
@@ -62,11 +61,11 @@ def get_endletter(w):
         f.write('get_endletter error(parse): ' + endletter + '\n')
         f.close()
 
-def return_word(el): #el='チ'など
-    wdic=load_dic()
+def return_word(el,wdic): #el='チ'など
     return random.choice(wdic[el])
     
-if __name__ == '__main__':
+def play(mode='endless'):
+    wdic = load_dic()
     while 1:
         print('you:',end='')
         w = input()
@@ -74,5 +73,16 @@ if __name__ == '__main__':
             exit()
         else:
             el = get_endletter(w)
-            re = return_word(el)
-            print('me:'+re)
+            if len(wdic[el]) == 0:
+                print('I lose!')
+                exit()
+            else:
+                re = return_word(el,wdic)
+                print('me:'+re)
+                if mode != 'endless':
+                    wdic[el].remove(re)
+
+if __name__ == '__main__':
+    print('Which mode?(endless,vs)> ',end='')
+    mode = input()
+    play(mode)
