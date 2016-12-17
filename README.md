@@ -6,7 +6,7 @@
 http://qiita.com/kkoba84/items/b828229c374a249965a9 を参考に色々インストールしてください.
 
 #virtualenvの使い方
-source shi3/bin/activate で環境に入れます(mecab-python3,requests,feedparserが入っている).
+source shi3/bin/activate で環境に入れます(mecab-python3,requests,feedparser,pyaudioが入っている).
 deactivate で環境から出られます.
 
 #タスク(各自自由に追加してよい)  
