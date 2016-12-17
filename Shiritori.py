@@ -28,12 +28,51 @@ def load_dic():
     return wdic
 
 def get_endletter(w):
-    return mecab.parse(w.rstrip('、。')).split('\t')[-5][-1]
+    va = ['ア','ァ','カ','サ','タ','ナ','ハ','マ','ヤ','ャ','ラ','ワ','ガ','ザ','ダ','バ','パ']
+    vi = ['イ','ィ','キ','シ','チ','ニ','ヒ','ミ',          'リ',     'ギ','ジ','ヂ','ビ','ピ']
+    vu = ['ウ','ゥ','ク','ス','ツ','ヌ','フ','ム','ユ','ュ','ル',     'グ','ズ','ヅ','ブ','プ','ヴ']
+    ve = ['エ','ェ','ケ','セ','テ','ネ','ヘ','メ',          'レ',     'ゲ','ゼ','デ','ベ','ペ']
+    vo = ['オ','ォ','コ','ソ','ト','ノ','ホ','モ','ヨ','ョ','ロ','ヲ','ゴ','ゾ','ド','ボ','ポ']
+    yoon = ['ァ','ィ','ゥ','ェ','ォ','ャ','ュ','ョ']
+
+    if w.rstrip('、。')[-1] == 'ー':
+        endletter = mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-1]
+        if endletter in va:
+            return 'ア'
+        elif endletter in vi:
+            return 'イ'
+        elif endletter in vu:
+            return 'ウ'
+        elif endletter in ve:
+            return 'エ'
+        elif endletter in vo:
+            return 'オ'
+        else:
+            f = open('error.log','a')
+            f.write('get_endletter error(-): ' + endletter + '\n')
+            f.close()
+
+    endletter = mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-1]
+    if endletter in yoon:
+        return mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-2:]
+    elif endletter in va or endletter in vi or endletter in vu or endletter in ve or endletter in vo:
+        return mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-1]
+    else:
+        f = open('error.log','a')
+        f.write('get_endletter error(parse): ' + endletter + '\n')
+        f.close()
 
 def return_word(el): #el='チ'など
     wdic=load_dic()
     return random.choice(wdic[el])
     
 if __name__ == '__main__':
-    w = sys.argv[1]
-    print(return_word(get_endletter(w)))
+    while 1:
+        print('you:',end='')
+        w = input()
+        if w == 'exit':
+            exit()
+        else:
+            el = get_endletter(w)
+            re = return_word(el)
+            print('me:'+re)
