@@ -1,8 +1,10 @@
 #-*- coding:utf-8 -*-
 import MeCab
 import random
+import copy
 import sys
 
+accept = ['名詞-一般']
 mecab = MeCab.Tagger('-Ochasen')
 mecab.parse('')
 '''
@@ -23,7 +25,7 @@ def load_dic():
             wdic[t].append(w)
         else:
             wdic[t]=[w]
-
+    f.close()
     return wdic
 
 def get_endletter(w):
@@ -63,7 +65,34 @@ def get_endletter(w):
 
 def return_word(el,wdic): #el='チ'など
     return random.choice(wdic[el])
-    
+
+def learn_word(words,savedic): #wdicにない単語をsaveに入れる
+    wdic = load_dic()
+    save = copy.deepcopy(savedic)
+    parsed = mecab.parse(words.rstrip('、。')).split('\t')
+    for i in range(len(parsed)):
+        if parsed[i] in accept:
+            if len(parsed[i-2]) == len([ch for ch in parsed[i-2] if "ア" <= ch <= "ン"]):
+                if parsed[i-2] not in wdic[parsed[i-2][:1]]:
+                    if parsed[i-2][:1] in save.keys():
+                        save[parsed[i-2][:1]].append(parsed[i-2])
+                    else:
+                        save[parsed[i-2][:1]] = [parsed[i-2]]
+    return save
+
+def dict_update(wdic,add):
+    for key in add.keys():
+        wdic[key].extend(add[key])
+
+def save_dic(add,mode='a'):
+    f = open('dic.csv',mode)
+    keys = list(add.keys())
+    keys.sort()
+    for key in keys:
+        for word in add[key]:
+            f.write(key + ',' + word + '\n')
+    f.close()
+
 def play(mode='endless'):
     wdic = load_dic()
     while 1:
@@ -75,10 +104,14 @@ def play(mode='endless'):
             el = get_endletter(w)
             if len(wdic[el]) == 0:
                 print('I lose!')
+                savedic = learn_word(w,{})
+                save_dic(savedic)
                 exit()
             else:
                 re = return_word(el,wdic)
                 print('me:'+re)
+                savedic = learn_word(w,{})
+                save_dic(savedic)
                 if mode != 'endless':
                     wdic[el].remove(re)
 
