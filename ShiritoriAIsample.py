@@ -45,6 +45,6 @@ wf.close()
 files = {"a": open(path, 'rb'), "v": "on"}
 r = requests.post(url, files=files)
 print(r.json()['text'])
-print(r.json()['message'])
+print(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken'])
 print(r.json().values())
 print(r.json().keys())

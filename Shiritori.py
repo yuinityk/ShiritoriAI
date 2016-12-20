@@ -51,11 +51,11 @@ def record():
 def word_recognize():
     files = {"a": open(path, 'rb'), "v": "on"}
     r = requests.post(url, files=files)
-    return r.json()['text']
+    return r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken']
 
-def load_dic():
+def load_dic(diff):
     wdic = {}
-    f = open('dic.csv','r')
+    f = open('dic_' + diff + '.csv','r')
     for line in f:
         t,w = line.split(",")
         w = w.rstrip()
@@ -74,8 +74,8 @@ def get_endletter(w):
     vo = ['オ','ォ','コ','ソ','ト','ノ','ホ','モ','ヨ','ョ','ロ','ヲ','ゴ','ゾ','ド','ボ','ポ']
     yoon = ['ァ','ィ','ゥ','ェ','ォ','ャ','ュ','ョ']
 
-    if w.rstrip('、。')[-1] == 'ー':
-        endletter = mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-1]
+    if w.rstrip('、。0123456789')[-1] == 'ー':
+        endletter = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
         if endletter in va:
             return 'ア'
         elif endletter in vi:
@@ -91,11 +91,11 @@ def get_endletter(w):
             f.write('get_endletter error(-): ' + endletter + '\n')
             f.close()
 
-    endletter = mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-1]
+    endletter = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
     if endletter in yoon:
-        return mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-2:]
+        return mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-2:]
     elif endletter in va or endletter in vi or endletter in vu or endletter in ve or endletter in vo:
-        return mecab.parse(w.rstrip('ー、。')).split('\t')[-5][-1]
+        return mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
     else:
         f = open('error.log','a')
         f.write('get_endletter error(parse): ' + endletter + '\n')
@@ -105,7 +105,7 @@ def return_word(el,wdic):
     return random.choice(wdic[el])
 
 def learn_word(words,savedic): #wdicにない単語をsaveに入れて返す
-    wdic = load_dic()
+    wdic = load_dic('hard')
     save = copy.deepcopy(savedic)
     parsed = mecab.parse(words.rstrip('、。')).split('\t')
     for i in range(len(parsed)):
@@ -123,7 +123,7 @@ def dict_update(wdic,add):
         wdic[key].extend(add[key])
 
 def save_dic(add,mode='a'):
-    f = open('dic.csv',mode)
+    f = open('dic_hard.csv',mode)
     keys = list(add.keys())
     keys.sort()
     for key in keys:
@@ -131,8 +131,8 @@ def save_dic(add,mode='a'):
             f.write(key + ',' + word + '\n')
     f.close()
 
-def play(mode='endless'):
-    wdic = load_dic()
+def play(mode = 'endless', diff = 'easy'):
+    wdic = load_dic(diff)
     while 1:
         print('you:',end='')
         w = input()
@@ -153,13 +153,14 @@ def play(mode='endless'):
                 if mode != 'endless':
                     wdic[el].remove(re)
 
-def play_record(mode='endless'):
-    wdic = load_dic()
+def play_record(mode = 'endless', diff = 'easy'):
+    wdic = load_dic(diff)
     while 1:
         print('press any key to record')
         _ = input()
         record()
         w = word_recognize()
+        print('you:'+w.rstrip('、。'))
         el = get_endletter(w)
         if len(wdic[el]) == 0:
             print('I lose!')
@@ -177,4 +178,10 @@ def play_record(mode='endless'):
 if __name__ == '__main__':
     print('Which mode?(endless,vs)> ',end='')
     mode = input()
-    play_record(mode)
+    print('Choose difficulty:easy,normal,hard.> ',end='')
+    while(1):
+        diff = input()
+        if diff in ['easy','normal','hard']:
+            break
+        print('Input any one word of "easy", "normal" and "hard".')
+    play_record(mode,diff)
