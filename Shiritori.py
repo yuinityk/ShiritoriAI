@@ -6,14 +6,15 @@ import sys
 import pyaudio
 import wave
 import requests
+import jtalk
 
 accept = ['名詞-一般']
-va = ['ア','ァ','カ','サ','タ','ナ','ハ','マ','ヤ','ャ','ラ','ワ','ガ','ザ','ダ','バ','パ']
-vi = ['イ','ィ','キ','シ','チ','ニ','ヒ','ミ',          'リ',     'ギ','ジ','ヂ','ビ','ピ']
-vu = ['ウ','ゥ','ク','ス','ツ','ヌ','フ','ム','ユ','ュ','ル',     'グ','ズ','ヅ','ブ','プ','ヴ']
-ve = ['エ','ェ','ケ','セ','テ','ネ','ヘ','メ',          'レ',     'ゲ','ゼ','デ','ベ','ペ']
-vo = ['オ','ォ','コ','ソ','ト','ノ','ホ','モ','ヨ','ョ','ロ','ヲ','ゴ','ゾ','ド','ボ','ポ']
-yoon = ['ァ','ィ','ゥ','ェ','ォ','ャ','ュ','ョ']
+va = ['ア','ァ','カ','サ','タ','ナ','ハ','マ','ヤ','ャ','ラ','ワ','ガ','ザ','ダ','バ','パ',     'あ','ぁ','か','さ','た','な','は','ま','や','ゃ','ら','わ','が','ざ','だ','ば','ぱ']
+vi = ['イ','ィ','キ','シ','チ','ニ','ヒ','ミ',          'リ',     'ギ','ジ','ヂ','ビ','ピ',     'い','ぃ','き','し','ち','に','ひ','み',          'り',     'ぎ','じ','ぢ','び','ぴ']
+vu = ['ウ','ゥ','ク','ス','ツ','ヌ','フ','ム','ユ','ュ','ル',     'グ','ズ','ヅ','ブ','プ','ヴ','う','ぅ','く','す','つ','ぬ','ふ','む','ゆ','ゅ','る',     'ぐ','ず','づ','ぶ','ぷ']
+ve = ['エ','ェ','ケ','セ','テ','ネ','ヘ','メ',          'レ',     'ゲ','ゼ','デ','ベ','ペ',     'え','ぇ','け','せ','て','ね','へ','め',          'れ',     'げ','ぜ','で','べ','ぺ']
+vo = ['オ','ォ','コ','ソ','ト','ノ','ホ','モ','ヨ','ョ','ロ','ヲ','ゴ','ゾ','ド','ボ','ポ',     'お','ぉ','こ','そ','と','の','ほ','も','よ','ょ','ろ','を','ご','ぞ','ど','ぼ','ぽ']
+yoon = ['ァ','ィ','ゥ','ェ','ォ','ャ','ュ','ョ','ぁ','ぃ','ぅ','ぇ','ぉ','ゃ','ゅ','ょ']
 
 #wave const
 CHUNK = 1024
@@ -60,6 +61,9 @@ def word_recognize():
     return r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken']
 
 def load_dic(diff):
+    """
+    難易度diffの辞書をcsvから読み込んで返す
+    """
     wdic = {}
     f = open('dic_' + diff + '.csv','r')
     for line in f:
@@ -72,7 +76,17 @@ def load_dic(diff):
     f.close()
     return wdic
 
-def get_endletter(w):
+def get_endletter(w): 
+    """
+    与えられた文字列の最後の文字を取得する.
+    APIで返ってきた認識結果の末尾には、。が入っていることが多いのでsplitで取り除き,
+    末尾がーであれば母音を返す.また,"しょ"などは2文字で1つとして扱う.
+
+    引数
+        w : 最後の文字を取得したい文字(str)
+    返り値
+        wの最後の文字(str)
+    """
     if w.rstrip('、。0123456789')[-1] == 'ー':
         endletter = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
         if endletter in va:
@@ -85,6 +99,8 @@ def get_endletter(w):
             return 'エ'
         elif endletter in vo:
             return 'オ'
+        elif endletter in ['ン','ん']:
+            return 'ン'
         else:
             f = open('error.log','a')
             f.write('get_endletter error(-): ' + endletter + '\n')
@@ -95,6 +111,8 @@ def get_endletter(w):
         return mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-2:]
     elif endletter in va or endletter in vi or endletter in vu or endletter in ve or endletter in vo:
         return mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
+    elif endletter in ['ン','ん']:
+        return 'ン'
     else:
         f = open('error.log','a')
         f.write('get_endletter error(parse): ' + endletter + '\n')
@@ -103,7 +121,18 @@ def get_endletter(w):
 def return_word(el,wdic):
     return random.choice(wdic[el])
 
-def learn_word(words,savedic): #wdicにない単語をsaveに入れて返す
+def learn_word(words,savedic): 
+    """
+    wdicにない単語をsaveに入れて返す.
+    wordsに含まれる一般名詞を保存する.
+
+    引数
+        words : 保存する単語
+        savedic : 保存する単語のリスト
+    返り値
+        savedicのディープコピーsaveを返す.
+        wordsがsavedicに含まれていないならば加える.
+    """
     wdic = load_dic('hard')
     save = copy.deepcopy(savedic)
     parsed = mecab.parse(words.rstrip('、。')).split('\t')
@@ -128,6 +157,10 @@ def dict_update(wdic,add):
         wdic[key].extend(add[key])
 
 def save_dic(add,mode='a'):
+    """
+    辞書addに含まれている単語をhardの辞書データに書き込む.
+    addはlearn_wordの返り値を投げる.
+    """
     f = open('dic_hard.csv',mode)
     keys = list(add.keys())
     keys.sort()
@@ -136,37 +169,43 @@ def save_dic(add,mode='a'):
             f.write(key + ',' + word + '\n')
     f.close()
 
-def play(mode = 'endless', diff = 'easy'):
-    wdic = load_dic(diff)
-    while 1:
+def wordinput(inputmode = 'rec'):
+    """
+    しりとりの中プレイヤーの入力部分.
+    キーボード入力と音声入力に対応.
+
+    引数
+        inputmode : 入力の形式. 'key'ならキーボード入力, 'rec'なら音声入力
+    返り値
+        入力された単語の末尾の文字
+    """
+    if inputmode == 'key':
         print('you:',end='')
         w = input()
-        if w == 'exit':
-            exit()
-        else:
-            el = get_endletter(w)
-            if len(wdic[el]) == 0:
-                print('I lose!')
-                savedic = learn_word(w,{})
-                save_dic(savedic)
-                exit()
-            else:
-                re = return_word(el,wdic)
-                print('me:'+re)
-                savedic = learn_word(w,{})
-                save_dic(savedic)
-                if mode != 'endless':
-                    wdic[el].remove(re)
-
-def play_record(mode = 'endless', diff = 'easy'):
-    wdic = load_dic(diff)
-    while 1:
+        return get_endletter(w)
+    else:
         print('press any key to record')
         _ = input()
         record()
         w = word_recognize()
-        print('you:'+w.rstrip('、。'))
-        el = get_endletter(w)
+        print('you:'+w.strip('、。'))
+        return get_endletter(w)
+
+def play(mode = 'endless', diff = 'easy', inputmode = 'rec'):
+    """
+    しりとり実行
+
+    引数
+        mode : endlessかvs(対戦)モードを指定する
+        diff : 難易度
+        inputmode : 入力の形式. 'key'ならキーボード入力, 'rec'なら音声入力
+    """
+    wdic = load_dic(diff)
+    while 1:
+        el = wordinput(inputmode)
+        if el == 'ン':
+            print('You lose!')
+            exit()
         if len(wdic[el]) == 0:
             print('I lose!')
             savedic = learn_word(w,{})
@@ -175,6 +214,7 @@ def play_record(mode = 'endless', diff = 'easy'):
         else:
             re = return_word(el,wdic)
             print('me:'+re)
+            jtalk.jtalk(re.encode('utf-8'))
             savedic = learn_word(w,{})
             save_dic(savedic)
             if mode != 'endless':
@@ -182,11 +222,15 @@ def play_record(mode = 'endless', diff = 'easy'):
 
 if __name__ == '__main__':
     print('Which mode?(endless,vs)> ',end='')
-    mode = input()
+    while(1):
+        mode = input()
+        if mode in ['endless','vs']:
+            break
+        print('Input any one word of "endless" and "vs".')
     print('Choose difficulty:easy,normal,hard.> ',end='')
     while(1):
         diff = input()
         if diff in ['easy','normal','hard']:
             break
         print('Input any one word of "easy", "normal" and "hard".')
-    play_record(mode,diff)
+    play(mode,diff)
