@@ -2,7 +2,7 @@
 import subprocess
 from datetime import datetime
 
-def jtalk(t):
+def jtalk(t): #tはbytes型
     open_jtalk = ['open_jtalk']
     mech = ['-x', '/var/lib/mecab/dic/open-jtalk/naist-jdic']
     htsvoice = ['-m', '/usr/share/hts-voice/mei/mei_normal.htsvoice']
@@ -19,7 +19,7 @@ def jtalk(t):
 def say_datetime():
     d = datetime.now()
     text = '%s月%s日,%s時%s分%s秒' % (d.month, d.day, d.hour, d.minute, d.second)
-    jtalk(text)
+    jtalk(text.encode('utf-8'))
 
 if __name__ == '__main__':
     say_datetime()
