@@ -139,7 +139,7 @@ def learn_word(words,savedic):
     for i in range(len(parsed)):
         if parsed[i] in accept:
             if len(parsed[i-2]) == len([ch for ch in parsed[i-2] if "ア" <= ch <= "ン"]):
-                if len(parsed[i-2]) > 1 and parsed[i-2][1] in yoon:
+                if len(parsed[i-2]) > 1 and parsed[i-2][1] in yoon: #2文字目がャなどのときは最初の2文字をまとめて見る
                         if parsed[i-2] not in wdic[parsed[i-2][:2]]:
                             if parsed[i-2][:2] in save.keys():
                                 save[parsed[i-2][:2]].append(parsed[i-2])
@@ -159,7 +159,7 @@ def dict_update(wdic,add):
 def save_dic(add,mode='a'):
     """
     辞書addに含まれている単語をhardの辞書データに書き込む.
-    addはlearn_wordの返り値を投げる.
+    addはlearn_wordの返り値を投げるようにしている.
     """
     f = open('dic_hard.csv',mode)
     keys = list(add.keys())
