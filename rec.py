@@ -1,5 +1,6 @@
 import pyaudio
 import wave
+import time
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -7,6 +8,8 @@ CHANNELS = 1
 RATE = 16000
 RECORD_SECONDS = 3
 WAVE_OUTPUT_FILENAME = "output.wav"
+
+time.sleep(3)
 
 p = pyaudio.PyAudio()
 
