@@ -31,7 +31,7 @@ url = "https://api.apigw.smt.docomo.ne.jp/amiVoice/v1/recognize?APIKEY={}".forma
 mecab = MeCab.Tagger('-Ochasen')
 mecab.parse('')
 
-def record():
+def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=16000, CHUNK=1024, RECORD_SECONDS=3, WAVE_OUTPUT_FILENAME="output.wav"):
     p = pyaudio.PyAudio()
     stream = p.open(format = FORMAT,
             channels = CHANNELS,
