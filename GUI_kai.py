@@ -14,6 +14,9 @@ TITLE = -1
 LEVEL = -2
 PLAY = -3
 LOSE = -4
+WIN = -5
+
+myfont = "fonts/ipaexg.ttf"
 
 class GUI:
     # constants for events
@@ -25,6 +28,7 @@ class GUI:
     LEVEL = -2
     PLAY = -3
     LOSE = -4
+    WIN = -5
 
     def __init__(self):
         pygame.init()
@@ -34,6 +38,7 @@ class GUI:
         self.title = Title()
         self.level = Level()
         self.play = Play(30)
+        self.win = Win()
         self.lose = Lose()
 
         self.playerword = ''
@@ -99,17 +104,14 @@ class GUI:
 
     def level_handler(self, event):
         if event.type == KEYDOWN and event.key == K_1:
-            self.play.set_difficulty(1)
+            self.play.set_difficulty('easy')
             self.game_state = PLAY
-            print('easy')
         elif event.type == KEYDOWN and event.key == K_2:
-            self.play.set_difficulty(2)
+            self.play.set_difficulty('normal')
             self.game_state = PLAY
-            print('normal')
         elif event.type == KEYDOWN and event.key == K_3:
-            self.play.set_difficulty(3)
+            self.play.set_difficulty('hard')
             self.game_state = PLAY
-            print('hard')
 
 
     def play_handler(self, event):
@@ -120,7 +122,15 @@ class GUI:
                 self.play.playerword = self.play.word_recognize()
                 self.playerword = self.play.playerword
                 self.play.is_pcturn = True
-                self.play.respond()
+                r = self.play.respond()
+                if r == 'win':
+                    self.game_state = WIN
+                if r == 'lose':
+                    self.game_state = LOSE
+
+    def lose_handler(self, event):
+        self.game_state = TITLE
+
 
 class Title:
     def __init__(self):
@@ -156,13 +166,14 @@ class Level:
 class Play:
     def __init__(self,fps):
         self.fps = fps
-        self.difficulty = 1
+        self.difficulty ='easy' 
         self.is_pcturn = False
         self.counter = int(3*1000./fps)
         self.pcword = ''
         self.playerword = ''
         self.pcword_former = ''
-        self.txtyou = pygame.font.Font(None, 40).render('YOU:', True, (0,50,0))
+        self.wdic = {}
+        self.txtyou = pygame.font.Font(None, 40).render('YOUあ:', True, (0,50,0))
         self.txtpc = pygame.font.Font(None, 40).render('PC:', True, (0,0,50))
         self.rec = pygame.image.load("button_s.png").convert_alpha()
         self.recording = pygame.font.Font(None, 40).render('rec...', True, (0,0,0))
@@ -174,9 +185,11 @@ class Play:
         if self.is_pcturn:
             screen.blit(self.txtyou,  (100,200))
             screen.blit(self.txtpc ,  (100,100))
-            screen.blit(pygame.font.Font(None, 40).render(self.playerword, True, (0,50,0)), (200,200))
-            screen.blit(pygame.font.Font(None, 40).render(self.pcword_former, True, (0,0,50)),(200,100))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,200))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.pcword_former, True, (0,0,50)),(200,100))
             screen.blit(self.thinking,(50,400))
+            print(self.playerword)
+            print(self.pcword)
             if self.counter>0:
                 self.counter -= 1
             else:
@@ -186,14 +199,24 @@ class Play:
         else:
             screen.blit(self.txtyou, (100,100))
             screen.blit(self.txtpc , (100,200))
-            screen.blit(pygame.font.Font(None, 40).render(self.playerword, True, (0,50,0)), (200,100))
-            screen.blit(pygame.font.Font(None, 40).render(self.pcword, True, (0,0,50)), (200,200))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,100))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
 
         screen.blit(self.rec, (300,400))
 
     def respond(self):
         self.pcword_former = self.pcword
-        self.pcword = str(time.time())
+        endletter = Shitiroti.to_katakana(Shiritori.get_endletter(self.playerword))
+        if endletter == 'nn':
+            return 'lose'
+        savedic = Shiritori.learn_word(self.playerword,{})
+        Shiritori.save_dic(savedic)
+        if len(self.wdic[endletter]) == 0:
+            return 'win'
+        else:
+            re = Shiritori.return_word(endletter,self.wdic)
+            self.pcword = re
+            self.wdic[endletter].remove(re)
 
     def load_dic(self):
         pass
@@ -204,11 +227,22 @@ class Play:
         Shiritori.record()
 
     def word_recognize(self):
-        return "Hello"
-        #return Shiritori.word_recognize()
+        #return "Hello"
+        return Shiritori.word_recognize()
 
     def set_difficulty(self,d):
         self.difficulty = d
+        self.wdic = Shiritori.load_dic(d)
+        print(self.wdic.keys())
+
+
+class Win:
+    def __init__(self):
+        pass
+    def update(self):
+        pass
+    def draw(self):
+        pass
 
 
 class Lose:
@@ -218,6 +252,7 @@ class Lose:
         pass
     def draw(self):
         pass
+
 
 
 if __name__ == '__main__':
