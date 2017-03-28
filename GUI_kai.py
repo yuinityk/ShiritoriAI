@@ -86,6 +86,7 @@ class GUI:
                 sys.exit()
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 self.game_state = TITLE
+                self.play.reset()
 
             if self.game_state == TITLE:
                 self.title_handler(event)
@@ -149,10 +150,10 @@ class Title:
 
 class Level:
     def __init__(self):
-        self.easy = pygame.font.Font(None, 40).render('1:EASY', True, (0,0,0))
-        self.normal = pygame.font.Font(None, 40).render('2:NORMAL', True, (0,0,0))
-        self.hard = pygame.font.Font(None, 40).render('3:HARD', True, (0,0,0))
-        self.instruction = pygame.font.Font(None, 40).render('Press any number key to choose the game level', True, (0,0,0))
+        self.easy = pygame.font.Font(myfont, 40).render('1:かんたーん', True, (0,0,0))
+        self.normal = pygame.font.Font(myfont, 40).render('2:ふつう', True, (0,0,0))
+        self.hard = pygame.font.Font(myfont, 40).render('3:すごーいむずかしい', True, (0,0,0))
+        self.instruction = pygame.font.Font(myfont, 40).render('ゲームの難易度を選んで数字を押してね!', True, (0,0,0))
     def update(self):
         pass
     def draw(self, screen):
@@ -173,11 +174,11 @@ class Play:
         self.playerword = ''
         self.pcword_former = ''
         self.wdic = {}
-        self.txtyou = pygame.font.Font(None, 40).render('YOU$B$"(B:', True, (0,50,0))
+        self.txtyou = pygame.font.Font(myfont, 40).render('あなた:', True, (0,50,0))
         self.txtpc = pygame.font.Font(None, 40).render('PC:', True, (0,0,50))
         self.rec = pygame.image.load("button_s.png").convert_alpha()
-        self.recording = pygame.font.Font(None, 40).render('rec...', True, (0,0,0))
-        self.thinking = pygame.font.Font(None, 40).render('thinking...', True, (0,0,0))
+        self.recording = pygame.font.Font(myfont, 40).render('録音中...', True, (0,0,0))
+        self.thinking = pygame.font.Font(myfont, 40).render('考え中...', True, (0,0,0))
     def update(self,playerword):
         self.playerword = playerword
     def draw(self, screen):
@@ -188,8 +189,8 @@ class Play:
             screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,200))
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword_former, True, (0,0,50)),(200,100))
             screen.blit(self.thinking,(50,400))
-            print(self.playerword)
-            print(self.pcword)
+            #print(self.playerword)
+            #print(self.pcword)
             if self.counter>0:
                 self.counter -= 1
             else:
@@ -206,8 +207,8 @@ class Play:
 
     def respond(self):
         self.pcword_former = self.pcword
-        endletter = Shitiroti.to_katakana(Shiritori.get_endletter(self.playerword))
-        if endletter == 'nn':
+        endletter = Shiritori.to_katakana(Shiritori.get_endletter(self.playerword))
+        if endletter == 'ん':
             return 'lose'
         savedic = Shiritori.learn_word(self.playerword,{})
         Shiritori.save_dic(savedic)
@@ -233,7 +234,14 @@ class Play:
     def set_difficulty(self,d):
         self.difficulty = d
         self.wdic = Shiritori.load_dic(d)
-        print(self.wdic.keys())
+        #print(self.wdic.keys())
+
+    def reset(self):
+        self.is_pcturn = False
+        self.pcword = ''
+        self.playerword = ''
+        self.pcword_former = ''
+        self.wdic = {}
 
 
 class Win:
