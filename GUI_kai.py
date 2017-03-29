@@ -66,6 +66,8 @@ class GUI:
             self.play.update(self.playerword)
         elif self.game_state == LOSE:
             self.lose.update()
+        elif self.game_state == WIN:
+            self.win.update()
 
 
     def render(self):
@@ -77,6 +79,8 @@ class GUI:
             self.play.draw(self.screen)
         elif self.game_state == LOSE:
             self.lose.draw(self.screen)
+        elif self.game_state == WIN:
+            self.win.draw(self.screen)
 
     
     def check_event(self):
@@ -96,6 +100,8 @@ class GUI:
                 self.play_handler(event)
             elif self.game_state == LOSE:
                 self.lose_handler(event)
+            elif self.game_state == WIN:
+                self.win_handler(event)
 
 
     def title_handler(self, event):
@@ -130,7 +136,10 @@ class GUI:
                     self.game_state = LOSE
 
     def lose_handler(self, event):
-        self.game_state = TITLE
+        pass
+
+    def win_handler(self, event):
+        pass
 
 
 class Title:
@@ -208,7 +217,7 @@ class Play:
     def respond(self):
         self.pcword_former = self.pcword
         endletter = Shiritori.to_katakana(Shiritori.get_endletter(self.playerword))
-        if endletter == 'ん':
+        if endletter in ['ん','ン']:
             return 'lose'
         savedic = Shiritori.learn_word(self.playerword,{})
         Shiritori.save_dic(savedic)
@@ -218,6 +227,7 @@ class Play:
             re = Shiritori.return_word(endletter,self.wdic)
             self.pcword = re
             self.wdic[endletter].remove(re)
+            return ''
 
     def load_dic(self):
         pass
@@ -246,20 +256,30 @@ class Play:
 
 class Win:
     def __init__(self):
-        pass
+        self.txtwin = pygame.font.Font(myfont, 40).render('すごーい！あなたの勝ちだよ！', True, (0,50,0))
+        self.txtreset = pygame.font.Font(myfont, 20).render('ESCキーでタイトルにもどるよ。', True, (0,0,0))
+
     def update(self):
         pass
-    def draw(self):
-        pass
+
+    def draw(self, screen):
+        screen.fill((200,50,50))
+        screen.blit(self.txtwin, (40,40))
+        screen.blit(self.txtreset, (400,400))
 
 
 class Lose:
     def __init__(self):
-        pass
+        self.txtlose = pygame.font.Font(myfont, 40).render('ざんねん… ', True, (50,0,0))
+        self.txtreset = pygame.font.Font(myfont, 20).render('ESCキーでタイトルにもどるよ。', True, (0,0,0))
+
     def update(self):
         pass
-    def draw(self):
-        pass
+
+    def draw(self, screen):
+        screen.fill((50,200,50))
+        screen.blit(self.txtlose, (40,40))
+        screen.blit(self.txtreset, (400,400))
 
 
 
