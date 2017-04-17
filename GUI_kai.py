@@ -183,6 +183,7 @@ class Play:
         self.playerword = ''
         self.pcword_former = ''
         self.wdic = {}
+        self.notsflag = 0 #1のときしりをとっていない
         self.txtyou = pygame.font.Font(myfont, 40).render('あなた:', True, (0,50,0))
         self.txtpc = pygame.font.Font(None, 40).render('PC:', True, (0,0,50))
         self.rec = pygame.image.load("button_s.png").convert_alpha()
@@ -211,9 +212,11 @@ class Play:
             screen.blit(self.txtpc , (100,200))
             screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,100))
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
+            if self.notsflag == 1:
+              screen.blit(pygame.font.Font(myfont, 40).render('しりをとろう', True, (0,50,0),(300,300))
 
         screen.blit(self.rec, (300,400))
-
+        
     def respond(self):
         self.pcword_former = self.pcword
         endletter = Shiritori.to_katakana(Shiritori.get_endletter(self.playerword))
@@ -223,10 +226,13 @@ class Play:
         Shiritori.save_dic(savedic)
         if len(self.wdic[endletter]) == 0:
             return 'win'
+        if Shiritori.to_katakana(self.playerword[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
+            self.notsflag = 1
         else:
             re = Shiritori.return_word(endletter,self.wdic)
             self.pcword = re
             self.wdic[endletter].remove(re)
+            self.notsflag = 0
             return ''
 
     def load_dic(self):
