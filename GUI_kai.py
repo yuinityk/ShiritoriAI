@@ -91,6 +91,17 @@ class GUI:
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 self.game_state = TITLE
                 self.play.reset()
+            if event.type == KEYDOWN and event.key == K_TAB: #for checking GUI
+                if self.game_state == TITLE:
+                    self.game_state = LEVEL
+                elif self.game_state == LEVEL:
+                    self.game_state = PLAY
+                elif self.game_state == PLAY:
+                    self.game_state = LOSE
+                elif self.game_state == LOSE:
+                    self.game_state = WIN
+                elif self.game_state == WIN:
+                    self.game_state = TITLE
 
             if self.game_state == TITLE:
                 self.title_handler(event)
