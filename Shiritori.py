@@ -31,12 +31,26 @@ url = "https://api.apigw.smt.docomo.ne.jp/amiVoice/v1/recognize?APIKEY={}".forma
 mecab = MeCab.Tagger('-Ochasen')
 mecab.parse('')
 
+def get_usbmicindex():
+    p = pyaudio.PyAudio()
+    count = p.get_device_count()
+    for i in range(count):
+        if 'USB' in p.get_device_info_by_index(i)['name']:
+            return i
+    return -1
+
 def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=16000, CHUNK=1024, RECORD_SECONDS=3, WAVE_OUTPUT_FILENAME="output.wav"):
     p = pyaudio.PyAudio()
+    idx = get_usbmicindex()
+    if idx == -1:
+        print('connect USB microphone.')
+        return 0
+
     stream = p.open(format = FORMAT,
             channels = CHANNELS,
             rate = RATE,
             input = True,
+            input_device_index=idx
             frames_per_buffer = CHUNK)
     frames = []
     print("* recording...")
@@ -278,14 +292,14 @@ def play(mode = 'endless', diff = 'easy', inputmode = 'rec'):
             exit()
         if len(wdic[el]) == 0:
             print('I lose!')
-            savedic = learn_word(w,{})
+            #savedic = learn_word(w,{})
             save_dic(savedic)
             exit()
         else:
             re = return_word(el,wdic)
             print('me:'+re)
             jtalk.jtalk(re.encode('utf-8'))
-            savedic = learn_word(w,{})
+            #savedic = learn_word(w,{})
             save_dic(savedic)
             if mode != 'endless':
                 wdic[el].remove(re)
