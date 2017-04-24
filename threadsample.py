@@ -57,6 +57,7 @@ class RecThread(threading.Thread):
         #self.proc.send_signal(signal.SIGINT)
         #return 0
         if f==0:
+            self.stop_event.set()
             return 0
         self.stop_event.set()
         self.stream.stop_stream()
