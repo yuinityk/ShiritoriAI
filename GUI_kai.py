@@ -139,6 +139,7 @@ class GUI:
                 self.play.voice_record(self.screen)
                 self.play.playerword = self.play.word_recognize()
                 self.playerword = self.play.playerword
+                print("player:"+self.play.playerword)
                 self.play.is_pcturn = True
                 r = self.play.respond()
                 if r == 'win':

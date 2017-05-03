@@ -7,6 +7,7 @@ import pyaudio
 import wave
 import requests
 import jtalk
+import subprocess
 
 accept = ['名詞-一般']
 va = ['ア','ァ','カ','サ','タ','ナ','ハ','マ','ヤ','ャ','ラ','ワ','ガ','ザ','ダ','バ','パ',     'あ','ぁ','か','さ','た','な','は','ま','や','ゃ','ら','わ','が','ざ','だ','ば','ぱ']
@@ -20,12 +21,12 @@ yoon = ['ァ','ィ','ゥ','ェ','ォ','ャ','ュ','ョ','ぁ','ぃ','ぅ','ぇ',
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 16000
+RATE = 48000
 RECORD_SECONDS = 3
 WAVE_OUTPUT_FILENAME = "output.wav"
 
 APIKEY = '6e4a37754e6b425465433566567a643155382e4a6148425152747678616f7330593975534d616b57354136'
-path = '/home/yuinityk/OneDrive/workspace/ShiritoriAI/output.wav'
+path = '/home/mayfes-meip/ShiritoriAI/output.wav'
 url = "https://api.apigw.smt.docomo.ne.jp/amiVoice/v1/recognize?APIKEY={}".format(APIKEY)
 
 mecab = MeCab.Tagger('-Ochasen')
@@ -39,7 +40,7 @@ def get_usbmicindex():
             return i
     return -1
 
-def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=16000, CHUNK=1024, RECORD_SECONDS=3, WAVE_OUTPUT_FILENAME="output.wav"):
+def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=48000, CHUNK=1024, RECORD_SECONDS=3, WAVE_OUTPUT_FILENAME="output.wav"):
     p = pyaudio.PyAudio()
     idx = get_usbmicindex()
     if idx == -1:
@@ -50,12 +51,12 @@ def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=16000, CHUNK=1024, RECORD_SE
             channels = CHANNELS,
             rate = RATE,
             input = True,
-            input_device_index=idx
+            input_device_index=idx,
             frames_per_buffer = CHUNK)
     frames = []
     print("* recording...")
     for i in range(0,int(RATE / CHUNK * RECORD_SECONDS)):
-        data = stream.read(CHUNK)
+        data = stream.read(CHUNK,exception_on_overflow=False)
         frames.append(data)
     stream.stop_stream()
     stream.close()
@@ -68,6 +69,9 @@ def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=16000, CHUNK=1024, RECORD_SE
     wf.setframerate(RATE)
     wf.writeframes(b''.join(frames))
     wf.close()
+	
+    subprocess.call("sox output.wav -r 16000 put.wav",shell=True)#down sampling
+    subprocess.call("sox put.wav output.wav gain -n",shell=True)
 
 def word_recognize():
     files = {"a": open(path, 'rb'), "v": "on"}
