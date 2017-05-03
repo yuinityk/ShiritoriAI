@@ -26,7 +26,8 @@ RECORD_SECONDS = 3
 WAVE_OUTPUT_FILENAME = "output.wav"
 
 APIKEY = '6e4a37754e6b425465433566567a643155382e4a6148425152747678616f7330593975534d616b57354136'
-path = '/home/mayfes-meip/ShiritoriAI/output.wav'
+#path = '/home/yuinityk/OneDrive/workspace/ShiritoriAI/output.wav'
+path = 'output.wav'
 url = "https://api.apigw.smt.docomo.ne.jp/amiVoice/v1/recognize?APIKEY={}".format(APIKEY)
 
 mecab = MeCab.Tagger('-Ochasen')
@@ -175,6 +176,8 @@ def get_endletter(w):
     返り値
         wの最後の文字(str)
     """
+    print(w)
+    print(w.rstrip('、。0123456789')[-1])
     if w.rstrip('、。0123456789')[-1] == 'ー':
         endletter = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
         if endletter in va:
