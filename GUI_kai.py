@@ -131,6 +131,9 @@ class GUI:
         elif event.type == KEYDOWN and event.key == K_3:
             self.play.set_difficulty('hard')
             self.game_state = PLAY
+        elif event.type == KEYDOWN and event.key == K_4:
+            self.play.set_difficulty('reverse')
+            self.game_state = PLAY
 
 
     def play_handler(self, event):
@@ -138,7 +141,7 @@ class GUI:
             x, y = event.pos
             if (x-325)**2+(y-425)**2<25**2:
                 self.play.voice_record(self.screen)
-                self.play.playerword = self.play.word_recognize()
+                self.play.playerschead, self.play.playersctail = self.play.word_recognize()
                 self.play.playersentence = self.play.get_sentence()
                 if self.play.playerword != "":
                     self.playerword = self.play.playerword
@@ -180,6 +183,7 @@ class Level:
         self.easy = pygame.font.Font(myfont, 40).render('1:かんたーん', True, (0,0,0))
         self.normal = pygame.font.Font(myfont, 40).render('2:ふつう', True, (0,0,0))
         self.hard = pygame.font.Font(myfont, 40).render('3:すごーいむずかしい', True, (0,0,0))
+        self.reverse = pygame.font.Font(myfont, 40).render('4:あたまとり', True, (0,0,0))
         self.instruction = pygame.font.Font(myfont, 40).render('ゲームの難易度を選んで数字を押してね!', True, (0,0,0))
     def update(self):
         pass
@@ -200,8 +204,11 @@ class Play:
         self.counter = int(3*1000./fps)
         self.pcword = ''
         self.playerword = ''
+        self.playerschead = ''
+        self.playersctail = ''
         self.playersentence = ''
         self.pcword_former = ''
+        self.pcsctail = ''
         self.wdic = {}
         self.notsflag = 0 #1のときしりをとっていない
         self.txtyou = pygame.font.Font(myfont, 40).render('あなた:', True, (0,50,0))
@@ -233,7 +240,11 @@ class Play:
             screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (200,100))
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
             if self.notsflag == 1:
-                screen.blit(pygame.font.Font(myfont, 40).render('しりをとろう', True, (0,50,0)),(300,300))
+                if self.difficulty != 'reverse':
+                    txt = 'しりをとろう'
+                else:
+                    txt = 'あたまをとろう'
+                screen.blit(pygame.font.Font(myfont, 40).render(txt, True, (0,50,0)),(300,300))
             if self.is_noinputerror == True:
                 screen.blit(pygame.font.Font(myfont, 40).render('なにか話して！', True, (0,50,0)),(300,300))
         screen.blit(self.rec, (300,400))
@@ -242,24 +253,28 @@ class Play:
         if self.is_noinputerror == True:
             return ''
         self.pcword_former = self.pcword
-        endletter = Shiritori.to_katakana(Shiritori.get_endletter(self.playerword))
-        if endletter in ['ん','ン']:
+        if self.playersctail in ['ん','ン']:
             return 'lose'
-        savedic = Shiritori.learn_word(self.playerword,{})
-        Shiritori.save_dic(savedic)
-        if len(self.wdic[endletter]) == 0:
+        #savedic = Shiritori.learn_word(self.playerword,{})
+        #Shiritori.save_dic(savedic)
+        #とりあえず辞書の更新はやめる
+        if len(self.wdic[self.playersctail]) == 0:
             return 'win'
         #if self.pcword_former != '' and Shiritori.to_katakana(self.playerword[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
-        if self.pcword_former != '' and Shiritori.to_katakana(self.playersentence[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
+        if self.pcword_former != '' and self.playerschead != self.pcsctail:
             self.notsflag = 1
         else:
-            re = Shiritori.return_word(endletter,self.wdic)
+            re = Shiritori.return_word(self.playersctail,self.wdic)
             self.pcword = re
-            self.wdic[endletter].remove(re)
+            if self.difficulty != 'reverse':
+                self.pcsctail = Shiritori.get_endletter(self.pcword)
+            else:
+                self.pcsctail = self.pcword[0]
+            self.wdic[self.playersctail].remove(re)
             self.notsflag = 0
             #jtalk.jtalk(re.encode('utf-8'))
             return ''
-
+        
     def load_dic(self):
         pass
 
@@ -276,13 +291,13 @@ class Play:
             return ""
 
     def word_recognize(self):
-        #return "Hello"
-        w = Shiritori.word_recognize()
-        if w != '_on':
-            return w
+        #w = Shiritori.word_recognize(self.difficulty)
+        head, tail = Shiritori.get_headntail(self.difficulty)
+        if head != '_on' and tail != '_on':
+            return head,tail
         else:
            self.is_noinputerror = True
-           return ""
+           return '',''
 
     def set_difficulty(self,d):
         self.difficulty = d

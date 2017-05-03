@@ -79,11 +79,19 @@ def get_sentence():
     r = requests.post(url, files=files)
     return r.json()['text'].rstrip('、。1234567890')
 
-def word_recognize():
+def get_headntail(d):
     files = {"a": open(path, 'rb'), "v": "on"}
     r = requests.post(url, files=files)
     print(r.json())
-    return r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken']
+    if r.json()['results'][0]['tokens'][0]['spoken'] == '_on':
+        return '_on','_on'
+    if d != 'reverse':
+        head = to_katakana(r.json()['results'][0]['tokens'][0]['spoken'][0])
+        tail = get_endletter(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken'])
+    else:
+        head = get_endletter(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken'])
+        tail = to_katakana(r.json()['results'][0]['tokens'][0]['spoken'][0])
+    return head,tail
 
 def load_dic(diff):
     """
