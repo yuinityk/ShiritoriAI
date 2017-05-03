@@ -4,6 +4,7 @@ from pygame.locals import *
 import sys
 import time
 import Shiritori
+import jtalk
 
 # events
 RECORD = 1
@@ -213,8 +214,7 @@ class Play:
             screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,100))
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
             if self.notsflag == 1:
-              screen.blit(pygame.font.Font(myfont, 40).render('しりをとろう', True, (0,50,0),(300,300))
-
+                screen.blit(pygame.font.Font(myfont, 40).render('しりをとろう', True, (0,50,0)),(300,300))
         screen.blit(self.rec, (300,400))
         
     def respond(self):
@@ -233,6 +233,7 @@ class Play:
             self.pcword = re
             self.wdic[endletter].remove(re)
             self.notsflag = 0
+            jtalk.jtalk(re.encode('utf-8'))
             return ''
 
     def load_dic(self):
