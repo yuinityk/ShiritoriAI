@@ -139,6 +139,7 @@ class GUI:
             if (x-325)**2+(y-425)**2<25**2:
                 self.play.voice_record(self.screen)
                 self.play.playerword = self.play.word_recognize()
+                self.play.playersentence = self.play.get_sentence()
                 if self.play.playerword != "":
                     self.playerword = self.play.playerword
                     print("player:"+self.play.playerword)
@@ -199,6 +200,7 @@ class Play:
         self.counter = int(3*1000./fps)
         self.pcword = ''
         self.playerword = ''
+        self.playersentence = ''
         self.pcword_former = ''
         self.wdic = {}
         self.notsflag = 0 #1のときしりをとっていない
@@ -214,7 +216,7 @@ class Play:
         if self.is_pcturn:
             screen.blit(self.txtyou,  (100,200))
             screen.blit(self.txtpc ,  (100,100))
-            screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,200))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (200,200))
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword_former, True, (0,0,50)),(200,100))
             screen.blit(self.thinking,(50,400))
             #print(self.playerword)
@@ -228,12 +230,12 @@ class Play:
         else:
             screen.blit(self.txtyou, (100,100))
             screen.blit(self.txtpc , (100,200))
-            screen.blit(pygame.font.Font(myfont, 40).render(self.playerword, True, (0,50,0)), (200,100))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (200,100))
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
             if self.notsflag == 1:
                 screen.blit(pygame.font.Font(myfont, 40).render('しりをとろう', True, (0,50,0)),(300,300))
             if self.is_noinputerror == True:
-                screen.blit(pygame.font.Font(myfont, 40).render('Speak something.', True, (0,50,0)),(300,300))
+                screen.blit(pygame.font.Font(myfont, 40).render('なにか話して！', True, (0,50,0)),(300,300))
         screen.blit(self.rec, (300,400))
         
     def respond(self):
@@ -247,7 +249,8 @@ class Play:
         Shiritori.save_dic(savedic)
         if len(self.wdic[endletter]) == 0:
             return 'win'
-        if self.pcword_former != '' and Shiritori.to_katakana(self.playerword[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
+        #if self.pcword_former != '' and Shiritori.to_katakana(self.playerword[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
+        if self.pcword_former != '' and Shiritori.to_katakana(self.playersentence[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
             self.notsflag = 1
         else:
             re = Shiritori.return_word(endletter,self.wdic)
@@ -264,6 +267,13 @@ class Play:
         screen.blit(self.recording, (100,400))
         pygame.display.update()
         Shiritori.record()
+
+    def get_sentence(self):
+        sent = Shiritori.get_sentence()
+        if sent != '_on':
+            return sent
+        else:
+            return ""
 
     def word_recognize(self):
         #return "Hello"

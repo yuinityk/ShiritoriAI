@@ -74,9 +74,15 @@ def record(FORMAT=pyaudio.paInt16, CHANNELS=1, RATE=48000, CHUNK=1024, RECORD_SE
     subprocess.call("sox output.wav -r 16000 put.wav",shell=True)#down sampling
     subprocess.call("sox put.wav output.wav gain -n",shell=True)
 
+def get_sentence():
+    files = {"a": open(path, 'rb'), "v": "on"}
+    r = requests.post(url, files=files)
+    return r.json()['text'].rstrip('、。1234567890')
+
 def word_recognize():
     files = {"a": open(path, 'rb'), "v": "on"}
     r = requests.post(url, files=files)
+    print(r.json())
     return r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken']
 
 def load_dic(diff):
