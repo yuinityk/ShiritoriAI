@@ -139,9 +139,13 @@ class GUI:
             if (x-325)**2+(y-425)**2<25**2:
                 self.play.voice_record(self.screen)
                 self.play.playerword = self.play.word_recognize()
-                self.playerword = self.play.playerword
-                print("player:"+self.play.playerword)
-                self.play.is_pcturn = True
+                if self.play.playerword != "":
+                    self.playerword = self.play.playerword
+                    print("player:"+self.play.playerword)
+                    self.play.is_pcturn = True
+                    self.play.is_noinputerror = False
+                else:
+                    self.play.is_pcturn = False
                 r = self.play.respond()
                 if r == 'win':
                     self.game_state = WIN
@@ -191,6 +195,7 @@ class Play:
         self.fps = fps
         self.difficulty ='easy' 
         self.is_pcturn = False
+        self.is_noinputerror = False
         self.counter = int(3*1000./fps)
         self.pcword = ''
         self.playerword = ''
@@ -227,9 +232,13 @@ class Play:
             screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
             if self.notsflag == 1:
                 screen.blit(pygame.font.Font(myfont, 40).render('しりをとろう', True, (0,50,0)),(300,300))
+            if self.is_noinputerror == True:
+                screen.blit(pygame.font.Font(myfont, 40).render('Speak something.', True, (0,50,0)),(300,300))
         screen.blit(self.rec, (300,400))
         
     def respond(self):
+        if self.is_noinputerror == True:
+            return ''
         self.pcword_former = self.pcword
         endletter = Shiritori.to_katakana(Shiritori.get_endletter(self.playerword))
         if endletter in ['ん','ン']:
@@ -238,14 +247,14 @@ class Play:
         Shiritori.save_dic(savedic)
         if len(self.wdic[endletter]) == 0:
             return 'win'
-        if Shiritori.to_katakana(self.playerword[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
+        if self.pcword_former != '' and Shiritori.to_katakana(self.playerword[0]) != Shiritori.to_katakana(Shiritori.get_endletter(self.pcword_former)):
             self.notsflag = 1
         else:
             re = Shiritori.return_word(endletter,self.wdic)
             self.pcword = re
             self.wdic[endletter].remove(re)
             self.notsflag = 0
-            jtalk.jtalk(re.encode('utf-8'))
+            #jtalk.jtalk(re.encode('utf-8'))
             return ''
 
     def load_dic(self):
@@ -258,7 +267,12 @@ class Play:
 
     def word_recognize(self):
         #return "Hello"
-        return Shiritori.word_recognize()
+        w = Shiritori.word_recognize()
+        if w != '_on':
+            return w
+        else:
+           self.is_noinputerror = True
+           return ""
 
     def set_difficulty(self,d):
         self.difficulty = d

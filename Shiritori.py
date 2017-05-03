@@ -176,8 +176,6 @@ def get_endletter(w):
     返り値
         wの最後の文字(str)
     """
-    print(w)
-    print(w.rstrip('、。0123456789')[-1])
     if w.rstrip('、。0123456789')[-1] == 'ー':
         endletter = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
         if endletter in va:
