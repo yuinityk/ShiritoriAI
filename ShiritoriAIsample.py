@@ -3,17 +3,19 @@ import requests
 import json
 import pyaudio
 import wave
+import subprocess
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 16000
+RATE = 48000
 RECORD_SECONDS = 3
 WAVE_OUTPUT_FILENAME = "output.wav"
 
-APIKEY = '626b7a4f416a48454771576241464467474330705a496e2f54646a6535514c69625164745a6338664a442f'
+APIKEY = '6e4a37754e6b425465433566567a643155382e4a6148425152747678616f7330593975534d616b57354136'
 
-path = '/home/yuinityk/OneDrive/workspace/ShiritoriAI/output.wav'
+#path = '/home/yuinityk/OneDrive/workspace/ShiritoriAI/output.wav'
+path = 'output.wav'
 url = "https://api.apigw.smt.docomo.ne.jp/amiVoice/v1/recognize?APIKEY={}".format(APIKEY)
 
 p = pyaudio.PyAudio()
@@ -42,8 +44,12 @@ wf.setframerate(RATE)
 wf.writeframes(b''.join(frames))
 wf.close()
 
+subprocess.call("sox output.wav -r 16000 put.wav",shell=True)
+subprocess.call("sox put.wav output.wav gain -n",shell=True)
+
 files = {"a": open(path, 'rb'), "v": "on"}
 r = requests.post(url, files=files)
+print(r.json())
 print(r.json()['text'])
 print(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken'])
 print(r.json().values())
