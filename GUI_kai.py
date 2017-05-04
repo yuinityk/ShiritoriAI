@@ -33,7 +33,9 @@ class GUI:
 
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((640,480))
+        self.screensize = (1530,835)
+        self.screen = pygame.display.set_mode(self.screensize,FULLSCREEN,32)
+        self.isFullScreen = True
         pygame.display.set_caption('WordChainer')
 
         self.title = Title()
@@ -89,9 +91,16 @@ class GUI:
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and event.key == K_ESCAPE:
+            if event.type == KEYDOWN and event.key == K_ESCAPE: #go to title
                 self.game_state = TITLE
                 self.play.reset()
+            if event.type == KEYDOWN and event.key == K_F11:
+                if self.isFullScreen:
+                    self.screen = pygame.display.set_mode(self.screensize,0,32)
+                    self.isFullScreen = False
+                else:
+                    self.screen = pygame.display.set_mode(self.screensize,FULLSCREEN,32)
+                    self.isFullScreen = True
             if event.type == KEYDOWN and event.key == K_TAB: #for checking GUI
                 if self.game_state == TITLE:
                     self.game_state = LEVEL
@@ -193,6 +202,7 @@ class Level:
         screen.blit(self.easy, (100,200))
         screen.blit(self.normal, (100,300))
         screen.blit(self.hard, (100,400))
+        screen.blit(self.reverse, (100,500))
 
 
 class Play:
@@ -223,8 +233,8 @@ class Play:
         if self.is_pcturn:
             screen.blit(self.txtyou,  (100,200))
             screen.blit(self.txtpc ,  (100,100))
-            screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (200,200))
-            screen.blit(pygame.font.Font(myfont, 40).render(self.pcword_former, True, (0,0,50)),(200,100))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (400,200))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.pcword_former, True, (0,0,50)),(400,100))
             screen.blit(self.thinking,(50,400))
             #print(self.playerword)
             #print(self.pcword)
@@ -237,8 +247,8 @@ class Play:
         else:
             screen.blit(self.txtyou, (100,100))
             screen.blit(self.txtpc , (100,200))
-            screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (200,100))
-            screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (200,200))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.playersentence, True, (0,50,0)), (400,100))
+            screen.blit(pygame.font.Font(myfont, 40).render(self.pcword, True, (0,0,50)), (400,200))
             if self.notsflag == 1:
                 if self.difficulty != 'reverse':
                     txt = 'しりをとろう'
@@ -342,4 +352,7 @@ class Lose:
 
 
 if __name__ == '__main__':
+    if Shiritori.get_usbmicindex() == -1:
+        print('connect USB microphone.')
+        sys.exit()
     GUI()

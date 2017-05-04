@@ -87,9 +87,9 @@ def get_headntail(d):
         return '_on','_on'
     if d != 'reverse':
         head = to_katakana(r.json()['results'][0]['tokens'][0]['spoken'][0])
-        tail = get_endletter(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken'])
+        tail = to_katakana(get_endletter(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken']))
     else:
-        head = get_endletter(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken'])
+        head = to_katakana(get_endletter(r.json()['results'][0]['tokens'][len(r.json()['results'][0]['tokens'])-2]['spoken']))
         tail = to_katakana(r.json()['results'][0]['tokens'][0]['spoken'][0])
     return head,tail
 
