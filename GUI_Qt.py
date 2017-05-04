@@ -18,7 +18,7 @@ class MenuWidget(QWidget):
 
         label = QLabel('難易度を選んでね!', self)
         font = QFont()
-        font.setPointSize(25)
+        font.setPointSize(10)
         label.setFont(font)
 
         self.button1 = QPushButton('easy')
@@ -80,22 +80,22 @@ class MainWindow(QWidget):
         self.vbox = QVBoxLayout(self)
         self.vbox.addWidget(self.menu)
         self.setLayout(self.vbox)
-        self.menu.button1.clicked.connect(self.play_handler)
-        self.menu.button2.clicked.connect(self.play_handler)
-        self.menu.button3.clicked.connect(self.play_handler)
-        self.setFixedSize(1200,700)
+        self.menu.button1.clicked.connect(self.record_handler)
+        self.menu.button2.clicked.connect(self.record_handler)
+        self.menu.button3.clicked.connect(self.record_handler)
+        self.setFixedSize(800,500)
         self.show()
 
-    def play_handler(self):
+    def record_handler(self):
         self.menu.close()
         sender = self.sender()
         self.play.set_difficulty(sender.text())
         self.record = RecordWidget(self)
         self.vbox.addWidget(self.record)
         self.setLayout(self.vbox)
-        self.record.record_button.clicked.connect(self.shiri)
+        self.record.record_button.clicked.connect(self.play_handler)
 
-    def shiri(self):
+    def play_handler(self):
         self.play.voice_record()
         self.play.playerschead, self.play.playersctail = self.play.word_recognize()
         self.play.playersentence = self.play.get_sentence()
@@ -105,18 +105,18 @@ class MainWindow(QWidget):
             self.play.is_noinputerror = False
             r = self.play.respond()
             if self.notsflag == 1:
-                QMessageBox.warning(self, 'しりをとろう！')
+                QMessageBox.warning(self, 'おっと', 'しりをとろう！')
             elif r == 'win':
-                QMessageBox.about(self, 'すごーい!あなたの勝ちだよ!')
+                QMessageBox.about(self, 'WIN', 'すごーい!あなたの勝ちだよ!')
                 self.__init__()
             elif r == 'lose':
-                QMessageBox.about(self, 'ざんねん…')
+                QMessageBox.about(self, 'LOSE', 'ざんねん…')
                 self.__init__()
             else:
                 self.record.PC.setText(self.play.pcword)
         else:
             self.play.is_pcturn = False
-            QMessageBox.warning(self, 'なにか話して!')
+            QMessageBox.warning(self, '聞き取れなかった…', 'なにか話して!')
 
 
 
