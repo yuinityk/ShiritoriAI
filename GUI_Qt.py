@@ -99,12 +99,12 @@ class MainWindow(QWidget):
         self.play.voice_record()
         self.play.playerschead, self.play.playersctail = self.play.word_recognize()
         self.play.playersentence = self.play.get_sentence()
-        if self.play.playerword != "":
-            self.record.player.setText(self.play.playerword)
+        if self.play.playersentence != "":
+            self.record.player.setText(self.play.playersentence)
             self.play.is_pcturn = True
             self.play.is_noinputerror = False
             r = self.play.respond()
-            if self.notsflag == 1:
+            if self.play.notsflag == 1:
                 QMessageBox.warning(self, 'おっと', 'しりをとろう！')
             elif r == 'win':
                 QMessageBox.about(self, 'WIN', 'すごーい!あなたの勝ちだよ!')
