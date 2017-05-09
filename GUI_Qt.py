@@ -24,18 +24,22 @@ class MenuWidget(QWidget):
         self.button1 = QPushButton('easy')
         self.button2 = QPushButton('normal')
         self.button3 = QPushButton('hard')
+        self.button4 = QPushButton('reverse')
         self.button1.setToolTip('かんたーん')
         self.button2.setToolTip('ふつう')
         self.button3.setToolTip('すごーいむずかしい')
+        self.button4.setToolTip('あたまとり')
         # button1.setIcon(QIcon("easy.png"))
-        # button1.setIcon(QIcon("normal.png"))
-        # button1.setIcon(QIcon("hard.png"))
+        # button2.setIcon(QIcon("normal.png"))
+        # button3.setIcon(QIcon("hard.png"))
+        # button4.setIcon(QIcon("reverse.png"))
 
         layout = QHBoxLayout()
 
         layout.addWidget(self.button1)
         layout.addWidget(self.button2)
         layout.addWidget(self.button3)
+        layout.addWidget(self.button4)
 
         self.setLayout(layout)
 
@@ -83,6 +87,7 @@ class MainWindow(QWidget):
         self.menu.button1.clicked.connect(self.record_handler)
         self.menu.button2.clicked.connect(self.record_handler)
         self.menu.button3.clicked.connect(self.record_handler)
+        self.menu.button4.clicked.connect(self.record_handler)
         self.setFixedSize(800,500)
         self.show()
 
