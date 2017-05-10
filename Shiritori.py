@@ -211,7 +211,27 @@ def get_endletter(w):
 
     endletter = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
     if endletter in yoon:
-        return mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-2:]
+        el = mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5]
+        #「きょうじゅ」が「きょうじ+ゅ」になったりする
+        if len(el) == 1:
+            if el in ['ャ','ゃ']:
+                return 'ヤ'
+            elif el in ['ュ','ゅ']:
+                return 'ユ'
+            elif el in ['ョ','ゅ']:
+                return 'ヨ'
+            elif el in ['ァ','ぁ']:
+                return 'ア'
+            elif el in ['ィ','ぃ']:
+                return 'イ'
+            elif el in ['ゥ','ぅ']:
+                return 'ウ'
+            elif el in ['ェ','ぇ']:
+                return 'エ'
+            elif el in ['ォ','ぉ']:
+                return 'オ'
+        else:
+            return el[-2:]
     elif endletter in va or endletter in vi or endletter in vu or endletter in ve or endletter in vo:
         return mecab.parse(w.rstrip('ー、。0123456789')).split('\t')[-5][-1]
     elif endletter in ['ン','ん']:
