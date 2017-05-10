@@ -219,7 +219,7 @@ class MainWindow(QWidget):
                 self.__init__()
             else:
                 self.record.PC.setText(self.play.pcword)
-                self.record.cursor.insertText(self.play.pcword)
+                self.record.cursor.insertText(self.play.pcword + ' -> ')
                 #self.word_list.append(self.play.pcword)
         else:
             self.play.is_pcturn = False
