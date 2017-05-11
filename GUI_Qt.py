@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -199,7 +200,6 @@ class MainWindow(QWidget):
         recording.close()
         if self.play.playersentence != "":
             self.record.player.setText(self.play.playersentence)
-            self.record.cursor.insertText(self.play.playersentence + ' -> ')
             #self.word_list.append(self.play.playersentence)
             self.play.is_pcturn = True
             self.play.is_noinputerror = False
@@ -218,6 +218,7 @@ class MainWindow(QWidget):
                 self.close()
                 self.__init__()
             else:
+                self.record.cursor.insertText(self.play.playersentence + ' -> ')
                 self.record.PC.setText(self.play.pcword)
                 self.record.cursor.insertText(self.play.pcword + ' -> ')
                 #self.word_list.append(self.play.pcword)
