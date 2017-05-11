@@ -20,6 +20,7 @@ echo "input last number"
 read  end
 for i in `seq $(( start )) $(( end ))`
 do
-  head -n $i dic_$dff.csv | tail -n 1
-  arecord -f dat -D hw:2,0 -c 1 ./recorded/$dff/$i.wav
+  arr=( `head -n $i dic_$dff.csv | tail -n 1 | tr -s ',' ' '`)
+  echo $i ${arr[1]}
+  #arecord -f dat -D hw:2,0 -c 1 ./recorded/$dff/${arr[1]}.wav
 done
