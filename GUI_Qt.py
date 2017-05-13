@@ -38,7 +38,7 @@ class PicButton(QAbstractButton):
         self.update()
 
     def sizeHint(self):
-        return QSize(200, 200)
+        return QSize(320, 300)
 
 
 class WaitDialog(QDialog):
@@ -80,10 +80,14 @@ class MenuWidget(QWidget):
         hlayout.addWidget(label)
         hlayout.addStretch(1)
 
-        self.button1 = PicButton('easy', QPixmap("EASY.png"), QPixmap("かんたーん.png"), QPixmap("かんたーん.png"))
-        self.button2 = PicButton('normal', QPixmap("NORMAL.png"), QPixmap("ふつう.png"), QPixmap("ふつう.png"))
-        self.button3 = PicButton('hard', QPixmap("HARD.png"), QPixmap("むずかしい.png"), QPixmap("むずかしい.png"))
-        self.button4 = PicButton('reverse', QPixmap("REVERSE.png"), QPixmap("あたまとり.png"), QPixmap("あたまとり.png"))
+        self.button1 = PicButton('easy', QPixmap("EASY.png"), QPixmap("kantan.png"), QPixmap("かんたーん.png"))
+        self.button2 = PicButton('normal', QPixmap("NORMAL.png"), QPixmap("hutuu.png"), QPixmap("ふつう.png"))
+        self.button3 = PicButton('hard', QPixmap("HARD.png"), QPixmap("muzui.png"), QPixmap("むずかしい.png"))
+        self.button4 = PicButton('reverse', QPixmap("REVERSE.png"), QPixmap("atama.png"), QPixmap("あたまとり.png"))
+        self.button1.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.button2.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.button3.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.button4.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         # self.button1 = QPushButton('easy')
         # self.button2 = QPushButton('normal')
         # self.button3 = QPushButton('hard')
