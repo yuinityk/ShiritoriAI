@@ -80,32 +80,37 @@ class MenuWidget(QWidget):
         hlayout.addWidget(label)
         hlayout.addStretch(1)
 
-        #self.button1 = PicButton('easy', QPixmap("a.png"), QPixmap("b.png"), QPixmap("c.png"))
-        self.button1 = QPushButton('easy')
-        self.button2 = QPushButton('normal')
-        self.button3 = QPushButton('hard')
-        self.button4 = QPushButton('reverse')
-        self.button1.setToolTip('かんたーん')
-        self.button2.setToolTip('ふつう')
-        self.button3.setToolTip('すごーいむずかしい')
-        self.button4.setToolTip('あたまとり')
+        self.button1 = PicButton('easy', QPixmap("EASY.png"), QPixmap("かんたーん.png"), QPixmap("かんたーん.png"))
+        self.button2 = PicButton('normal', QPixmap("NORMAL.png"), QPixmap("ふつう.png"), QPixmap("ふつう.png"))
+        self.button3 = PicButton('hard', QPixmap("HARD.png"), QPixmap("むずかしい.png"), QPixmap("むずかしい.png"))
+        self.button4 = PicButton('reverse', QPixmap("REVERSE.png"), QPixmap("あたまとり.png"), QPixmap("あたまとり.png"))
+        # self.button1 = QPushButton('easy')
+        # self.button2 = QPushButton('normal')
+        # self.button3 = QPushButton('hard')
+        # self.button4 = QPushButton('reverse')
+        # self.button1.setToolTip('かんたーん')
+        # self.button2.setToolTip('ふつう')
+        # self.button3.setToolTip('すごーいむずかしい')
+        # self.button4.setToolTip('あたまとり')
         # button1.setIcon(QIcon("easy.png"))
         # button2.setIcon(QIcon("normal.png"))
         # button3.setIcon(QIcon("hard.png"))
         # button4.setIcon(QIcon("reverse.png"))
 
         layout = QHBoxLayout()
+        layout.addSpacing(100)
         layout.addWidget(self.button1)
         layout.addWidget(self.button2)
         layout.addWidget(self.button3)
         layout.addWidget(self.button4)
+        layout.addSpacing(100)
 
         vlayout = QVBoxLayout()
         vlayout.addStretch(1)
         vlayout.addLayout(hlayout)
-        vlayout.addStretch(2)
+        vlayout.addStretch(1)
         vlayout.addLayout(layout)
-        vlayout.addStretch(2)
+        vlayout.addStretch(1)
 
         self.setLayout(vlayout)
 
@@ -300,7 +305,7 @@ class MainWindow(QWidget):
     def speak_handler(self):
         sender = self.sender()
         speaker = sender.text()
-        if self.pcword == '':
+        if self.play.pcword == '':
             QMessageBox.warning(self, '', '何か話してから押してね！')
         else:
             dicread.speak(self.difficulty, self.play.pcword, speaker)
